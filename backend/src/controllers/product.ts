@@ -1,24 +1,29 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { ProductInput } from '../types';
+import { logger } from '../utils/logger';
 
 const prisma = new PrismaClient();
 
 export const addProduct = async (req: Request, res: Response) => {
   try {
     const productData: ProductInput = req.body;
-    
-    if (!productData.name || !productData.sku || !productData.quantity || !productData.price) {
-      return res.status(400).json({ error: 'Required fields missing' });
+
+    const existingProduct = await prisma.product.findUnique({ where: { sku: productData.sku } });
+    if (existingProduct) {
+      logger.warn(`Product creation failed: SKU ${productData.sku} already exists`);
+      return res.status(409).json({ error: 'Product SKU already exists' });
     }
 
     const product = await prisma.product.create({
       data: productData,
     });
 
+    logger.info(`Product created: ${product.name} (ID: ${product.id})`);
     res.status(201).json({ product_id: product.id, message: 'Product created successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    logger.error(`Product creation error: ${error.message}`);
+    throw error;
   }
 };
 
@@ -27,18 +32,22 @@ export const updateProductQuantity = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { quantity } = req.body;
 
-    if (quantity === undefined || quantity < 0) {
-      return res.status(400).json({ error: 'Invalid quantity' });
+    const product = await prisma.product.findUnique({ where: { id: parseInt(id) } });
+    if (!product) {
+      logger.warn(`Quantity update failed: Product ID ${id} not found`);
+      return res.status(404).json({ error: 'Product not found' });
     }
 
-    const product = await prisma.product.update({
+    const updatedProduct = await prisma.product.update({
       where: { id: parseInt(id) },
       data: { quantity },
     });
 
-    res.json({ message: 'Quantity updated', quantity: product.quantity });
+    logger.info(`Quantity updated for product ID ${id}: ${quantity}`);
+    res.json({ message: 'Quantity updated', quantity: updatedProduct.quantity });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    logger.error(`Quantity update error: ${error.message}`);
+    throw error;
   }
 };
 
@@ -52,8 +61,11 @@ export const getProducts = async (req: Request, res: Response) => {
       take: pageSize,
     });
 
-    res.json(products);
+    const total = await prisma.product.count();
+    logger.info(`Fetched ${products.length} products (page ${page}, size ${pageSize})`);
+    res.json({ data: products, total, page, pageSize });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    logger.error(`Get products error: ${error.message}`);
+    throw error;
   }
 };
