@@ -18,7 +18,8 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     (req as any).user = decoded;
     next();
   } catch (error) {
-    logger.warn(`Authentication failed: Invalid token - ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.warn(`Authentication failed: Invalid token - ${errorMessage}`);
     res.status(401).json({ error: 'Invalid token' });
   }
 };

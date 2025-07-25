@@ -22,7 +22,8 @@ export const addProduct = async (req: Request, res: Response) => {
     logger.info(`Product created: ${product.name} (ID: ${product.id})`);
     res.status(201).json({ product_id: product.id, message: 'Product created successfully' });
   } catch (error) {
-    logger.error(`Product creation error: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.error(`Product creation error: ${errorMessage}`);
     throw error;
   }
 };
@@ -46,7 +47,8 @@ export const updateProductQuantity = async (req: Request, res: Response) => {
     logger.info(`Quantity updated for product ID ${id}: ${quantity}`);
     res.json({ message: 'Quantity updated', quantity: updatedProduct.quantity });
   } catch (error) {
-    logger.error(`Quantity update error: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.error(`Quantity update error: ${errorMessage}`);
     throw error;
   }
 };
@@ -65,7 +67,8 @@ export const getProducts = async (req: Request, res: Response) => {
     logger.info(`Fetched ${products.length} products (page ${page}, size ${pageSize})`);
     res.json({ data: products, total, page, pageSize });
   } catch (error) {
-    logger.error(`Get products error: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.error(`Get products error: ${errorMessage}`);
     throw error;
   }
 };

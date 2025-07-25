@@ -1,5 +1,5 @@
 import express from 'express';
-import { authRoutes } from './routes/authRoutes';
+import { authRoutes } from './routes/auth';
 import { productRoutes } from './routes/product';
 import { config } from './config';
 import { PrismaClient } from '@prisma/client';
@@ -12,22 +12,19 @@ import cors from 'cors';
 const app = express();
 const prisma = new PrismaClient();
 
-// Middleware
-app.use(helmet()); // Security headers
-app.use(cors()); // Enable CORS
+app.use(helmet());
+app.use(cors());
 app.use(express.json());
 app.use(
   rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per window
+    windowMs: 15 * 60 * 1000,
+    max: 100,
   }),
 );
 
-// Routes
 app.use('/api', authRoutes);
 app.use('/api', productRoutes);
 
-// Error handling
 app.use(errorMiddleware);
 
 app.listen(config.port, () => {

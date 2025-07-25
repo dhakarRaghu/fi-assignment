@@ -1,0 +1,76 @@
+{
+  "info": {
+    "name": "Inventory Management API",
+    "_postman_id": "8c7f9e2b-4d1e-4c9a-9d7b-3f2e9d8c6f1d",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"puja\", \"password\": \"mypassword\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{baseUrl}}/register", "host": ["{{baseUrl}}"], "path": ["register"] }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"puja\", \"password\": \"mypassword\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"] }
+      }
+    },
+    {
+      "name": "Add Product",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"Phone\", \"type\": \"Electronics\", \"sku\": \"PHN-001\", \"image_url\": \"https://example.com/phone.jpg\", \"description\": \"Latest Phone\", \"quantity\": 5, \"price\": 999.99}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{baseUrl}}/products", "host": ["{{baseUrl}}"], "path": ["products"] }
+      }
+    },
+    {
+      "name": "Update Product Quantity",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"quantity\": 15}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{baseUrl}}/products/:id/quantity", "host": ["{{baseUrl}}"], "path": ["products", ":id", "quantity"] }
+      }
+    },
+    {
+      "name": "Get Products",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/products?page=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["products"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "10" }] }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "token", "value": "" }
+  ]
+}

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { login, register } from '../controllers/auth';
+import { login, register } from '../controllers/auth'; // Adjust if using authController.ts
 import { validate, userSchema } from '../middleware/validate';
 
 export const authRoutes = Router();
