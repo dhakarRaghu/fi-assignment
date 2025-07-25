@@ -1,6 +1,6 @@
 import express from 'express';
-import { authRoutes } from './routes/authRoutes';
-import { productRoutes } from './routes/productRoutes';
+import { authRoutes } from './routes/auth';
+import { productRoutes } from './routes/product';
 import { config } from './config';
 import { PrismaClient } from '@prisma/client';
 
