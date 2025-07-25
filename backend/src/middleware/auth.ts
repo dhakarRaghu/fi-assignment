@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
+import { logger } from '../utils/logger';
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
-  
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    logger.warn('Authentication failed: Missing or invalid Authorization header');
     return res.status(401).json({ error: 'Authentication required' });
   }
 
@@ -16,6 +18,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     (req as any).user = decoded;
     next();
   } catch (error) {
+    logger.warn(`Authentication failed: Invalid token - ${error.message}`);
     res.status(401).json({ error: 'Invalid token' });
   }
 };

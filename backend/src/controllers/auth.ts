@@ -4,19 +4,17 @@ import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 import { config } from '../config';
 import { UserCredentials } from '../types';
+import { logger } from '../utils/logger';
 
 const prisma = new PrismaClient();
 
 export const register = async (req: Request, res: Response) => {
   try {
     const { username, password }: UserCredentials = req.body;
-    
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
-    }
 
     const existingUser = await prisma.user.findUnique({ where: { username } });
     if (existingUser) {
+      logger.warn(`Registration attempt for existing user: ${username}`);
       return res.status(409).json({ error: 'User already exists' });
     }
 
@@ -25,9 +23,11 @@ export const register = async (req: Request, res: Response) => {
       data: { username, password: hashedPassword },
     });
 
+    logger.info(`User registered: ${username}`);
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    logger.error(`Registration error: ${(error instanceof Error ? error.message : String(error))}`);
+    throw error; // Handled by errorMiddleware
   }
 };
 
@@ -35,18 +35,17 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { username, password }: UserCredentials = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
-    }
-
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user || !(await bcrypt.compare(password, user.password))) {
+      logger.warn(`Failed login attempt for user: ${username}`);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     const token = jwt.sign({ userId: user.id }, config.jwtSecret, { expiresIn: '1h' });
+    logger.info(`User logged in: ${username}`);
     res.json({ access_token: token });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    logger.error(`Login error: ${(error instanceof Error ? error.message : String(error))}`);
+    throw error;
   }
 };
