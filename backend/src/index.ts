@@ -19,7 +19,7 @@ app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
-  }),
+  })
 );
 
 app.use('/api', authRoutes);
@@ -27,6 +27,14 @@ app.use('/api', productRoutes);
 
 app.use(errorMiddleware);
 
-app.listen(config.port, () => {
+app.all('*name', (req, res) => {
+  res.status(404).json({ error: `Route ${req.method} ${req.path} not found` });
+});
+
+app.listen(config.port, (error) => {
+  if (error) {
+    logger.error(`Server error: ${error.message}`);
+    throw error;
+  }
   logger.info(`Server running on port ${config.port}`);
 });

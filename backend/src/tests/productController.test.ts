@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { addProduct, updateProductQuantity, getProducts } from '../controllers/product';
+import { addProduct, updateQuantity, getProducts } from '../controllers/product';
 import { PrismaClient } from '@prisma/client';
 
 jest.mock('@prisma/client');
@@ -51,7 +51,7 @@ describe('Product Controller', () => {
       mockPrisma.product.findUnique.mockResolvedValue({ id: 1, name: 'Phone' });
       mockPrisma.product.update.mockResolvedValue({ id: 1, quantity: 15 });
 
-      await updateProductQuantity(req as Request, res as Response);
+      await updateQuantity(req as Request, res as Response);
 
       expect(json).toHaveBeenCalledWith({ message: 'Quantity updated', quantity: 15 });
     });
@@ -61,7 +61,7 @@ describe('Product Controller', () => {
       req.body = { quantity: 15 };
       mockPrisma.product.findUnique.mockResolvedValue(null);
 
-      await updateProductQuantity(req as Request, res as Response);
+      await updateQuantity(req as Request, res as Response);
 
       expect(status).toHaveBeenCalledWith(404);
       expect(json).toHaveBeenCalledWith({ error: 'Product not found' });

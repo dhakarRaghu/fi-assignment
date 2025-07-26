@@ -39,6 +39,7 @@ export const login = async (req: Request, res: Response) => {
     }
     const token = jwt.sign({ userId: user.id }, config.jwtSecret, { expiresIn: '1h' });
     logger.info(`User logged in: ${username}`);
+    res.status(200).json({ access_token: token });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     logger.error(`Login error: ${errorMessage}`);
